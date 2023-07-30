@@ -10,7 +10,7 @@ const userAuth = expressAsyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (user && bcrypt.compare(password, user.password)) {
+  if (user && (await bcrypt.compare(password, user.password))) {
     res.status(201).json({
       _id: user.id,
       name: user.name,
@@ -18,7 +18,7 @@ const userAuth = expressAsyncHandler(async (req, res) => {
       token: generateToken(res, user._id),
     });
   } else {
-    res.status(400);
+    res.status(200);
     throw new Error("invalid password or email");
   }
 });
