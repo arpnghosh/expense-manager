@@ -50,6 +50,7 @@ const userRegister = expressAsyncHandler(async (req, res) => {
       email: user.email,
       token: generateToken(res,user._id),
     });
+    res.redirect('login')
   } else {
     res.status(400);
     throw new Error("invalid user data");
