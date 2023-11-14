@@ -3,9 +3,7 @@ import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
 
-// login
-
-const userAuth = expressAsyncHandler(async (req, res) => {
+const userLogin = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -23,18 +21,16 @@ const userAuth = expressAsyncHandler(async (req, res) => {
   }
 });
 
-// signup
-
 const userRegister = expressAsyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  const userExits = await User.findOne({ email });
+  const userExists = await User.findOne({ email });
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  if (userExits) {
-    res.status(200).json({ message: "user already exits" });
+  if (userExists) {
+    res.status(200).json({ message: "user already exists" });
   }
 
   const user = await User.create({
@@ -56,8 +52,6 @@ const userRegister = expressAsyncHandler(async (req, res) => {
   }
 });
 
-// logout
-
 const userLogout = (req, res) => {
     res.cookie('jwt', '', {
       httpOnly: true,
@@ -66,9 +60,7 @@ const userLogout = (req, res) => {
     res.status(200).json({ message: 'Logged out successfully' });
   };
 
-  // check out logged in user's profile
-
-  const userProfile = expressAsyncHandler(async (req, res) => {
+const userProfile = expressAsyncHandler(async (req, res) => {
   
     const user = await User.findById(req.user.id);
     
@@ -84,4 +76,4 @@ const userLogout = (req, res) => {
     }
   });
   
-  export { userAuth, userRegister, userLogout, userProfile };
+  export { userLogin, userRegister, userLogout, userProfile };
