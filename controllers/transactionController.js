@@ -2,20 +2,51 @@ import expressAsyncHandler from "express-async-handler";
 import Transaction from "../models/transactionModel.js";
 import User from "../models/userModel.js";
 
-// get transaction
-
+// GET ALL TRANSACTIONS
 const getTransaction = expressAsyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ user: req.user._id });
   res.status(200).json(transactions);
 });
 
-// post transaction
+// GET TRANSACTIONS BY CATEGORY
+const getTransactionCat = async (req, res) => {
+  try {
+    const { category } = req.params
+    const transaction = await Transaction.find({ category })
+    if (!transaction) {
+      res.status(400).json({ message: "invalid category" })
+    }
+    res.status(200).json(transaction)
+  } catch (error) {
+    res.status(400).json({message: "internal server error"})
+
+  }
+}
+
+// POST
+const AvailableCategory = {
+  "ElectricityBill": true,
+  "Food": true,
+  "Transportation": true,
+  "HouseRent": true,
+  "Insurance": true,
+  "Entertainment": true,
+  "Miscellaneous": true,
+  "Healthcare": true,
+  "Savings": true,
+  "Internet": true
+}
 
 const postTransaction = expressAsyncHandler(async (req, res) => {
-  const { category, amount } = req.body;
+  const { category: TransactionCategory, amount } = req.body;
+
+  if (!AvailableCategory[TransactionCategory]) {
+    res.status(400).json({ message: "invalid transaction category" })
+    return;
+  }
 
   const transaction = await Transaction.create({
-    category,
+    category: TransactionCategory,
     amount,
     user: req.user._id,
   });
@@ -23,7 +54,6 @@ const postTransaction = expressAsyncHandler(async (req, res) => {
 });
 
 // update transaction
-
 const putTransaction = expressAsyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
 
@@ -53,4 +83,4 @@ const putTransaction = expressAsyncHandler(async (req, res) => {
   res.status(200).json(updatedTransaction);
 });
 
-export { getTransaction, postTransaction, putTransaction };
+export { getTransaction, getTransactionCat, postTransaction, putTransaction };
